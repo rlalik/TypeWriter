@@ -8,6 +8,23 @@
 
 using namespace std;
 
+struct Frame
+{
+    Frame();
+
+    uint frame;
+    std::string s;
+
+    void print();
+//     std::string & str();
+    void link(Frame * p);
+    void addBypass();
+
+    Frame * next;
+    Frame * prev;
+    Frame * bypass;
+};
+
 class TypeWriter
 {
 public:
@@ -21,7 +38,12 @@ public:
     std::string getRawString() const { return raw_string; }
 
     bool parse();
-    std::string render(int frame);
+    std::string render(uint frame);
+
+    void clear();
+
+private:
+    bool parseLine(uint lineno, const std::string & line);
 
 private:
     size_t frame_rate;
@@ -33,8 +55,7 @@ private:
 
     std::string raw_string;
 
-    typedef std::pair<uint, std::string> FrameString;        // frame, string
-    typedef std::pair<uint, std::deque<FrameString> > StringQueue; // current frame, string queue
+    typedef std::pair<Frame*, Frame*> StringQueue; // current frame, string queue
 
     std::vector<StringQueue> strings;   // strings
 };
