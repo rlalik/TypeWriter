@@ -39,12 +39,11 @@ set_target_properties(typewriter
     PROPERTIES
     VERSION 0.1
     SOVERSION 0
-    )
-
-#If your app, links to an external lib -ie Boost
-#target_link_libraries( typewriter ${Boost_LIBRARIES} )
+    PUBLIC_HEADER "typewriter.h"
+)
 
 # Install
 install(TARGETS typewriter
-        LIBRARY DESTINATION lib
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        PUBLIC_HEADER DESTINATION include
 )

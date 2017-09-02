@@ -49,9 +49,8 @@ endif()
 #	include_directories("include/some_platform_here")
 #endif()
 
-include_directories("./src")
-add_executable(testapp main.cpp)
-target_link_libraries(testapp typewriter)
+include_directories("src")
 
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(examples)
