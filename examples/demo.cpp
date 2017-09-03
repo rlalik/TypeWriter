@@ -19,11 +19,7 @@ int main(int argc, char ** argv)
         std::string str = tw.render(i);
         if (str != last_str)
         {
-//             for (uint j = 0; j < str.length(); ++j)
-//                 printf("\b");
-
-            printf("%s\n", str.c_str());
-            fflush(stdout);
+            printf("[%2d] %s\n", i, str.c_str());
             last_str = str;
         }
         usleep(step);

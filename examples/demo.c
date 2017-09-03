@@ -24,7 +24,7 @@ int main(int argc, char ** argv)
         tw_render(&tw, i, str, 200);
         if (strcmp(str, last_str) != 0)
         {
-            printf("%s\n", str);
+            printf("[%2d] %s\n", i, str);
             strcpy(last_str, str);
         }
         usleep(step);

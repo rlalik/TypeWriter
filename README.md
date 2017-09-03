@@ -29,6 +29,25 @@ tw.parse();
 for (int i = 0; i < 20; ++i)
     printf("%s\n", tw.render(i).c_str());
 ```
+will produce following chain of strings (numbers in brackets denote frame number):
+
+    [ 0] T
+    [ 1] Th
+    [ 2] Thi
+    [ 3] This
+    [ 5] This is
+    [ 7] This is a
+    [ 8] This is an
+    [10] This is an e
+    [11] This is an ex
+    [12] This is an exm
+    [13] This is an exma
+    [14] This is an exa
+    [15] This is an exam
+    [16] This is an examp
+    [17] This is an exampl
+    [18] This is an example
+
 See also examples/demo.cpp
 
 Installation
@@ -46,7 +65,7 @@ make
 C interface
 -----------
 
-There are wrapper function allowing to use Library with C code (e.g. MLT), here is set of wrapping function. See demo.c for an example.
+There are wrapper function allowing to use Library with C code (e.g. MLT), here is set of wrapping function. See examples/demo.c for an example.
 ```C
 typedef struct CTypeWriter TypeWriter;
 
