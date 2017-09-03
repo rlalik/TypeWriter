@@ -79,7 +79,7 @@ extern "C" {
 #if defined(__STDC__) || defined(__cplusplus)
 
 extern void tw_init(struct CTypeWriter * tw);
-extern void tw_finish(struct CTypeWriter * tw);
+extern void tw_delete(struct CTypeWriter * tw);
 extern void tw_setFrameRate(struct CTypeWriter * tw, unsigned int fr);
 extern unsigned int tw_getFrameRate(struct CTypeWriter * tw);
 extern void tw_setRawString(struct CTypeWriter * tw, const char * str);

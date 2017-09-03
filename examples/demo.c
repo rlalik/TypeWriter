@@ -15,7 +15,7 @@ int main(int argc, char ** argv)
 
     unsigned int total_sec = 10;
     unsigned int fr = tw_getFrameRate(&tw);
-    unsigned  long step = 1000000 / fr;
+    unsigned long step = 1000000 / fr;
 
     char last_str[200] = "";
     char str[200];
@@ -25,11 +25,12 @@ int main(int argc, char ** argv)
         if (strcmp(str, last_str) != 0)
         {
             printf("%s\n", str);
-            fflush(stdout);
             strcpy(last_str, str);
         }
         usleep(step);
     }
+
+    tw_delete(&tw);
 
     return 0;
 }

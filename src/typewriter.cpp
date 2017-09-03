@@ -232,9 +232,10 @@ void tw_init(CTypeWriter * tw)
     tw->tw = new TypeWriter;
 }
 
-void tw_finish(CTypeWriter * tw)
+void tw_delete(CTypeWriter * tw)
 {
-    delete tw;
+    delete tw->tw;
+    tw->tw = 0;
 }
 
 void tw_setFrameRate(CTypeWriter * tw, unsigned int fr)
