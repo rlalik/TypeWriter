@@ -21,13 +21,13 @@ See also examples/demo.cpp
 Minimum example
 ---------------
 
-```
-    TypeWriter tw;
-    tw.setFrameRate(2);
-    tw.setRawString("T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
-    tw.parse();
-    for (int i = 0; i < 20; ++i)
-        printf("%s\n", tw.render(i).c_str());
+```C++
+TypeWriter tw;
+tw.setFrameRate(2);
+tw.setRawString("T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
+tw.parse();
+for (int i = 0; i < 20; ++i)
+    printf("%s\n", tw.render(i).c_str());
 ```
 See also examples/demo.cpp
 
@@ -41,4 +41,20 @@ mkdir build
 cd build
 cmake ..
 make
+```
+
+C interface
+-----------
+
+There are wrapper function allowing to use Library with C code (e.g. MLT), here is set of wrapping function. See demo.c for an example.
+```C
+typedef struct CTypeWriter TypeWriter;
+
+extern void tw_init(struct CTypeWriter * tw);
+extern void tw_finish(struct CTypeWriter * tw);
+extern void tw_setFrameRate(struct CTypeWriter * tw, unsigned int fr);
+extern unsigned int tw_getFrameRate(struct CTypeWriter * tw);
+extern void tw_setRawString(struct CTypeWriter * tw, const char * str);
+extern void tw_parse(struct CTypeWriter * tw);
+extern void tw_render(struct CTypeWriter * tw, unsigned int frame, char * str, int length);
 ```

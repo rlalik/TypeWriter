@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(typewriter CXX)
+project(typewriter C CXX)
 include(CheckCXXCompilerFlag)
 
 #Let's build shared libs (*.so)

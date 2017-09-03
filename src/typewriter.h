@@ -1,8 +1,14 @@
 #ifndef TYPEWRITER_H
 #define TYPEWRITER_H
 
-#include <deque>
-#include <iostream>
+// for C-interface
+struct CTypeWriter
+{
+    void * tw;
+};
+
+#ifdef __cplusplus
+
 #include <string>
 #include <vector>
 
@@ -31,8 +37,8 @@ public:
     TypeWriter();
     virtual ~TypeWriter();
 
-    void setFrameRate(size_t fr) { frame_rate = fr; }
-    size_t getFrameRate() const { return frame_rate; }
+    void setFrameRate(uint fr) { frame_rate = fr; }
+    uint getFrameRate() const { return frame_rate; }
 
     void setRawString(const std::string & str) { raw_string = str; }
     std::string getRawString() const { return raw_string; }
@@ -59,5 +65,30 @@ private:
 
     std::vector<StringQueue> strings;   // strings
 };
+
+#else
+
+typedef
+    struct CTypeWriter
+        TypeWriter;
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if defined(__STDC__) || defined(__cplusplus)
+
+extern void tw_init(struct CTypeWriter * tw);
+extern void tw_finish(struct CTypeWriter * tw);
+extern void tw_setFrameRate(struct CTypeWriter * tw, unsigned int fr);
+extern unsigned int tw_getFrameRate(struct CTypeWriter * tw);
+extern void tw_setRawString(struct CTypeWriter * tw, const char * str);
+extern void tw_parse(struct CTypeWriter * tw);
+extern void tw_render(struct CTypeWriter * tw, unsigned int frame, char * str, int length);
+
+#endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* TYPEWRITER_H */

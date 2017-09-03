@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cstring>
 
 using namespace std;
 
@@ -224,4 +225,39 @@ void Frame::addBypass()
 
     if (bypass)
         s = bypass->s;
+}
+
+void tw_init(CTypeWriter * tw)
+{
+    tw->tw = new TypeWriter;
+}
+
+void tw_finish(CTypeWriter * tw)
+{
+    delete tw;
+}
+
+void tw_setFrameRate(CTypeWriter * tw, unsigned int fr)
+{
+    ((TypeWriter*)tw->tw)->setFrameRate(fr);
+}
+
+unsigned int tw_getFrameRate(CTypeWriter * tw)
+{
+    return ((TypeWriter*)tw->tw)->getFrameRate();
+}
+
+void tw_setRawString(CTypeWriter * tw, const char * str)
+{
+    ((TypeWriter*)tw->tw)->setRawString(str);
+}
+
+void tw_parse(CTypeWriter * tw)
+{
+    ((TypeWriter*)tw->tw)->parse();
+}
+
+void tw_render(CTypeWriter * tw, unsigned int frame, char * str, int length)
+{
+    std::strncpy(str, ((TypeWriter*)tw->tw)->render(frame).c_str(), length);
 }
