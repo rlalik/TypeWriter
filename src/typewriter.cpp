@@ -8,7 +8,9 @@ using namespace std;
 
 TypeWriter::TypeWriter() :
     frame_rate(25),
-    nextkey_char('>'), delkey_char('<'), optbeg_char('{'), optend_char('}')
+    command_char(':'), nextframe_char(','), nextstep_char('>'), delkey_char('<'),
+    optbeg_char('['), optend_char(']'), rangebeg_char('{'), rangeend_char('}'),
+    escape_char('\\')
 {
 }
 
@@ -79,10 +81,17 @@ int TypeWriter::parseLine(uint lineno, const std::string& line, int start_frame)
     while (i < limit)
     {
         char c = line[i];
-        if (c == nextkey_char)
+        if (c == nextframe_char)
         {
             ++i;
             ++frame;
+            last_action_was_frame_skip = true;
+            continue;
+        }
+        else if (c == nextstep_char)
+        {
+            ++i;
+            frame += frame_rate;
             last_action_was_frame_skip = true;
             continue;
         }

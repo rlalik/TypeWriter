@@ -53,10 +53,15 @@ private:
 private:
     size_t frame_rate;
 
-    char nextkey_char;
-    char delkey_char;
-    char optbeg_char;
-    char optend_char;
+    const char command_char;
+    const char nextframe_char;
+    const char nextstep_char;
+    const char delkey_char;
+    const char optbeg_char;
+    const char optend_char;
+    const char rangebeg_char;
+    const char rangeend_char;
+    const char escape_char;
 
     std::string raw_string;
 

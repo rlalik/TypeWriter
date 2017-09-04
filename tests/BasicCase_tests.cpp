@@ -28,7 +28,7 @@ void BasicCase_tests::setUp()
 void BasicCase_tests::TestErasing()
 {
 	TypeWriter tw;
-    tw.setRawString("a>b>>c><");
+    tw.setRawString("a,b,,c,<");
     CPPUNIT_ASSERT_EQUAL(true, tw.parse());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), tw.render(0));
     CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(1));
@@ -40,7 +40,7 @@ void BasicCase_tests::TestErasing()
 void BasicCase_tests::TestDoubleErasing()
 {
 	TypeWriter tw;
-    tw.setRawString("a>b>>c><<");
+    tw.setRawString("a,b,,c,<<");
     CPPUNIT_ASSERT_EQUAL(true, tw.parse());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), tw.render(0));
     CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(1));
@@ -48,7 +48,7 @@ void BasicCase_tests::TestDoubleErasing()
     CPPUNIT_ASSERT_EQUAL(std::string("abc"), tw.render(3));
     CPPUNIT_ASSERT_EQUAL(std::string("a"), tw.render(4));
 
-    tw.setRawString("a>b>>c><<de");
+    tw.setRawString("a,b,,c,<<de");
     CPPUNIT_ASSERT_EQUAL(true, tw.parse());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), tw.render(0));
     CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(1));
@@ -60,7 +60,7 @@ void BasicCase_tests::TestDoubleErasing()
 void BasicCase_tests::TestFrameSkip()
 {
 	TypeWriter tw;
-    tw.setRawString("a>b>{4}c><<d");
+    tw.setRawString("a,b,[4]c,<<d");
     CPPUNIT_ASSERT_EQUAL(true, tw.parse());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), tw.render(0));
     CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(1));
@@ -70,7 +70,7 @@ void BasicCase_tests::TestFrameSkip()
     CPPUNIT_ASSERT_EQUAL(std::string("abc"), tw.render(5));
     CPPUNIT_ASSERT_EQUAL(std::string("ad"), tw.render(6));
 
-    tw.setRawString("a>b>{4f}c><<d");
+    tw.setRawString("a,b,[4f]c,<<d");
     CPPUNIT_ASSERT_EQUAL(true, tw.parse());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), tw.render(0));
     CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(1));
@@ -80,7 +80,7 @@ void BasicCase_tests::TestFrameSkip()
     CPPUNIT_ASSERT_EQUAL(std::string("abc"), tw.render(5));
     CPPUNIT_ASSERT_EQUAL(std::string("ad"), tw.render(6));
 
-    tw.setRawString("a>b>{4s}c><<d");
+    tw.setRawString("a,b,[4s]c,<<d");
     CPPUNIT_ASSERT_EQUAL(true, tw.parse());
     CPPUNIT_ASSERT_EQUAL(std::string("a"), tw.render(0));
     CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(1));
@@ -88,6 +88,6 @@ void BasicCase_tests::TestFrameSkip()
     CPPUNIT_ASSERT_EQUAL(std::string("abc"), tw.render(1 + 4*tw.getFrameRate()));
     CPPUNIT_ASSERT_EQUAL(std::string("ad"), tw.render(1 + 4*tw.getFrameRate()+1));
 
-    tw.setRawString("a>b>{4g}c><<d");
+    tw.setRawString("a,b,[4g]c,<<d");
     CPPUNIT_ASSERT_EQUAL(false, tw.parse());
 }
