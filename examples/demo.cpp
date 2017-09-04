@@ -5,7 +5,11 @@ int main(int argc, char ** argv)
 {
     TypeWriter tw;
     tw.setFrameRate(2);
-    tw.setRawString("T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
+    if (argc > 1)
+        tw.setRawString(argv[1]);
+    else
+        tw.setRawString(
+            "T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
 
     tw.parse();
 

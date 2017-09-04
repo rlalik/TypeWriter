@@ -9,7 +9,10 @@ int main(int argc, char ** argv)
     tw_init(&tw);
 
     tw_setFrameRate(&tw, 2);
-    tw_setRawString(&tw, "T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
+    if (argc > 1)
+        tw_setRawString(&tw, argv[1]);
+    else
+        tw_setRawString(&tw, "T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
 
     tw_parse(&tw);
 
