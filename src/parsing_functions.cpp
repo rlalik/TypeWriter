@@ -2,7 +2,7 @@
 
 #include <string>
 
-const char command_char = ':';
+const char macro_char = ':';
 const char nextframe_char = ',';
 const char nextstep_char = '>';
 const char delkey_char = '<';
@@ -24,10 +24,6 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
 
     uint frame = start_frame;
     std::string frame_text;
-
-    Frame * last_frame = new Frame;
-    sq.first = last_frame;
-    sq.current = last_frame;
 
     char check_for_options = 0;
     bool was_escaped = false;
@@ -62,10 +58,10 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
             frame += frame_rate;
             check_for_options = nextstep_char;
         }
-        else if (c == command_char)
+        else if (c == macro_char)
         {
             ++i;
-            int ret = parseCommand(line, i, frame);
+            int ret = parseMacro(line, i, frame);
             if (ret < 0)
                 return ret;
         }
@@ -96,37 +92,21 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
             continue;
         }
 
-        // create new or reuse old frame
-        if (last_frame->frame != frame)
-        {
-            Frame * f = new Frame;
-            f->frame = frame;
-            f->s = last_frame->s;
-
-            // add it to the chain
-            f->link(last_frame);
-
-            // move iterator
-            last_frame = f;
-        }
-
         // append values
         if (!was_escaped and c == delkey_char)
         {
-            last_frame->addBypass();
+            insertBypass(frame);
         }
         else
         {
             char buff[2];
             buff[0] = c;
             buff[1] = 0L;
-            last_frame->s.append(buff);
+            insertString(std::string(buff), frame);
         }
 
         ++i;
     }
-
-    sq.last = last_frame;
 
     return frame;
 }
@@ -182,7 +162,7 @@ int TypeWriter::parseOptions(const std::string& line, uint & i, ParseOptions & p
     return i;
 }
 
-int TypeWriter::parseCommand(const std::string& line, uint & i, uint & frame)
+int TypeWriter::parseMacro(const std::string& line, uint & i, uint & frame)
 {
     char c = line[i];
     if (c == 'c')   // split by characters
@@ -194,6 +174,10 @@ int TypeWriter::parseCommand(const std::string& line, uint & i, uint & frame)
 
         while(c != rangeend_char and c)
         {
+            ++i;
+            c = line[i];
+            // TODO insert string
+            ++frame;
         }
     }
     else if (c == 'w')   // split by words

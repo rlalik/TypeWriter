@@ -43,6 +43,55 @@ bool TypeWriter::parse()
     return true;
 }
 
+Frame * TypeWriter::getOrInsertFrame(uint frame)
+{
+    // create new or reuse old frame
+    // by design sq.last->frame cannot be larger than frame
+    // take the last frame then FIXME: should we break parser here?
+
+    if (!sq.last)
+    {
+        Frame * f = new Frame;
+        sq.first = f;
+        sq.current = f;
+        sq.last = f;
+
+        return f;
+    }
+
+    if (sq.last->frame > frame)
+        return sq.last;
+
+    if (sq.last->frame < frame)
+    {
+        Frame * f = new Frame;
+        f->frame = frame;
+        f->s = sq.last->s;
+
+        // add it to the chain
+        f->link(sq.last);
+
+        // move iterator
+        sq.last = f;
+    }
+
+    return sq.last;
+}
+
+void TypeWriter::insertString(const std::string & str, uint frame)
+{
+    Frame * f = getOrInsertFrame(frame);
+
+    f->s.append(str);
+}
+
+void TypeWriter::insertBypass(uint frame)
+{
+    Frame * f = getOrInsertFrame(frame);
+
+    f->addBypass();
+}
+
 std::string TypeWriter::render(uint frame)
 {
     if (!sq.first)

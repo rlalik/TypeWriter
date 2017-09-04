@@ -58,7 +58,11 @@ private:
 
     struct ParseOptions;
     int parseOptions(const std::string& line, uint & i, ParseOptions & po);
-    int parseCommand(const std::string& line, uint & i, uint & frame);
+    int parseMacro(const std::string& line, uint & i, uint & frame);
+
+    void insertString(const std::string & str, uint frame);
+    void insertBypass(uint frame);
+    Frame * getOrInsertFrame(uint frame);
 
 private:
     size_t frame_rate;
