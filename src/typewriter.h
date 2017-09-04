@@ -30,6 +30,12 @@ struct Frame
     Frame * bypass;
 };
 
+struct StringQueue {
+    Frame * first;
+    Frame * current;
+    Frame * last;
+};
+
 class TypeWriter
 {
 public:
@@ -50,6 +56,9 @@ public:
 private:
     int parseLine(uint lineno, const std::string & line, int start_frame);
 
+    struct ParseOptions;
+    int parseOptions(const std::string& line, uint & i, ParseOptions & po);
+
 private:
     size_t frame_rate;
 
@@ -64,8 +73,6 @@ private:
     const char escape_char;
 
     std::string raw_string;
-
-    typedef std::pair<Frame*, Frame*> StringQueue; // current frame, string queue
 
     std::vector<StringQueue> strings;   // strings
 };

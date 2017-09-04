@@ -1,8 +1,6 @@
 #include "typewriter.h"
-#include <iostream>
 #include <string>
 #include <sstream>
-#include <cstring>
 
 using namespace std;
 
@@ -23,7 +21,7 @@ void TypeWriter::clear()
 {
     for (uint i = 0; i < strings.size(); ++i)
     {
-        Frame * f = strings[i].second;
+        Frame * f = strings[i].first;
         while (!f)
         {
             Frame * f2 = f->next;
@@ -62,131 +60,6 @@ bool TypeWriter::parse()
     return true;
 }
 
-int TypeWriter::parseLine(uint lineno, const std::string& line, int start_frame)
-{
-    StringQueue sq;
-    sq.first = 0;
-
-    size_t limit = line.length();
-
-    uint frame = start_frame;
-    std::string frame_text;
-
-    Frame * last_frame = new Frame;
-    sq.second = last_frame;
-    sq.first = last_frame;
-
-    uint i = 0;
-    bool last_action_was_frame_skip = false;
-    while (i < limit)
-    {
-        char c = line[i];
-        if (c == nextframe_char)
-        {
-            ++i;
-            ++frame;
-            last_action_was_frame_skip = true;
-            continue;
-        }
-        else if (c == nextstep_char)
-        {
-            ++i;
-            frame += frame_rate;
-            last_action_was_frame_skip = true;
-            continue;
-        }
-        else if (c == optbeg_char)  // open bracket
-        {
-            if (!last_action_was_frame_skip)
-                return false;
-
-            // go to the next char
-            ++i;
-            if (i == limit) // if end of line reach, parsing error
-                return -i-1;
-
-            c = line[i];
-
-            int n = 0;  // stores number of frames to skip
-            bool expect_end = false;    // when ending should be expected
-
-            while (c != optend_char)
-            {
-                if (expect_end)
-                    return -i-1;
-
-                // if is digit then add to frames skip number
-                if (isdigit(c))
-                {
-                    int v = c - 48; // quick conv from char to int
-                    n = n*10 + v;
-                }
-                // s if for seconds: mult frames by f. rate
-                else if (c == 's')
-                {
-                    n *= frame_rate;
-                    expect_end = true;
-                }
-                // just frames
-                else if (c == 'f')
-                {
-                    expect_end = true;
-                }
-                else
-                {
-                    // unexpected character
-                    return -i-1;
-                }
-
-                ++i;
-                if (i == limit) // if end of line reach, parsing error
-                    return -i-1;
-
-                c = line[i];
-            }
-            ++i;
-
-            frame += n - 1; // add number of frames, -1 to cancel last '>' action
-        }
-        else
-        {
-            last_action_was_frame_skip = false;
-            // create new or reuse old frame
-            if (last_frame->frame != frame)
-            {
-                Frame * f = new Frame;
-                f->frame = frame;
-                f->s = last_frame->s;
-
-                // add it to the chain
-                f->link(last_frame);
-
-                // move iterator
-                last_frame = f;
-            }
-
-            // append values
-            if (c == delkey_char)
-            {
-                last_frame->addBypass();
-            }
-            else
-            {
-                char buff[2];
-                buff[0] = c;
-                buff[1] = 0L;
-                last_frame->s.append(buff);
-            }
-
-            ++i;
-        }
-    }
-
-    strings.push_back(sq);
-
-    return frame;
-}
-
 std::string TypeWriter::render(uint frame)
 {
     std::stringstream ss;
@@ -198,7 +71,13 @@ std::string TypeWriter::render(uint frame)
         if (!strings[i].first)
             continue;
 
-        Frame * f = strings[i].second;
+        // start with current frame
+        Frame * f = strings[i].current;
+
+        // but if current is ahead 'frame', start from beginning
+        if (f->frame > frame)
+            f = strings[i].first;
+
         while (true)
         {
             if (!f->next or f->next->frame > frame)
@@ -207,6 +86,7 @@ std::string TypeWriter::render(uint frame)
                 f = f->next;
         }
         ss << f->s;
+        strings[i].current = f;
     }
 
     return ss.str();
@@ -239,40 +119,4 @@ void Frame::addBypass()
 
     if (bypass)
         s = bypass->s;
-}
-
-void tw_init(CTypeWriter * tw)
-{
-    tw->tw = new TypeWriter;
-}
-
-void tw_delete(CTypeWriter * tw)
-{
-    delete (TypeWriter*)tw->tw;
-    tw->tw = 0;
-}
-
-void tw_setFrameRate(CTypeWriter * tw, unsigned int fr)
-{
-    ((TypeWriter*)tw->tw)->setFrameRate(fr);
-}
-
-unsigned int tw_getFrameRate(CTypeWriter * tw)
-{
-    return ((TypeWriter*)tw->tw)->getFrameRate();
-}
-
-void tw_setRawString(CTypeWriter * tw, const char * str)
-{
-    ((TypeWriter*)tw->tw)->setRawString(str);
-}
-
-int tw_parse(CTypeWriter * tw)
-{
-    return ((TypeWriter*)tw->tw)->parse();
-}
-
-void tw_render(CTypeWriter * tw, unsigned int frame, char * str, int length)
-{
-    std::strncpy(str, ((TypeWriter*)tw->tw)->render(frame).c_str(), length);
 }

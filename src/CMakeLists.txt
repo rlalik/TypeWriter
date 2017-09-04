@@ -11,6 +11,8 @@ set(CMAKE_BUILD_DIR ${PROJECT_SOURCE_DIR}/build)
 #Add any source files that will create a single library
 set(typewriter_LIB
     typewriter.cpp
+    c_functions.cpp
+    parsing_functions.cpp
 )
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
