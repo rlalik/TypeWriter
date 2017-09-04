@@ -78,6 +78,13 @@ Frame * TypeWriter::getOrInsertFrame(uint frame)
     return sq.last;
 }
 
+void TypeWriter::insertChar(char c, uint frame)
+{
+    char buff[2] = "\0";
+    buff[0] = c;
+    insertString(buff, frame);
+}
+
 void TypeWriter::insertString(const std::string & str, uint frame)
 {
     Frame * f = getOrInsertFrame(frame);

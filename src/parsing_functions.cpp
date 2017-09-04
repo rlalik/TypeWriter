@@ -1,6 +1,8 @@
 #include "typewriter.h"
 
+#include <vector>
 #include <string>
+#include <sstream>
 
 const char macro_char = ':';
 const char nextframe_char = ',';
@@ -17,6 +19,14 @@ struct TypeWriter::ParseOptions
     uint fskip;
     uint sskip;
 };
+
+uint TypeWriter::getFrameSkipFromOptions(const ParseOptions & po, bool steps)
+{
+    if (steps)
+        return po.sskip * frame_rate;
+    else
+        return po.sskip * frame_rate + po.fskip;
+}
 
 int TypeWriter::parseString(const std::string& line, int start_frame)
 {
@@ -38,23 +48,18 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
         {
             ++i;
             c = line[i];
+            if (!c)
+                return -i-1;
+
             was_escaped = true;
         }
         else if (c == nextframe_char)
         {
-            // get next char and check whether it is an option
-            ++i;
-            c = line[i];
-
             ++frame;    // increase frame number
             check_for_options = nextframe_char;
         }
         else if (c == nextstep_char)
         {
-            // get next char and check whether it is an option
-            ++i;
-            c = line[i];
-
             frame += frame_rate;
             check_for_options = nextstep_char;
         }
@@ -64,31 +69,35 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
             int ret = parseMacro(line, i, frame);
             if (ret < 0)
                 return ret;
+
+            continue;
         }
 
         if (check_for_options)
         {
-            if (c == optbeg_char)
+            // get next char and check whether it is an option
+            ++i;
+            c = line[i];
+
+            ParseOptions po = { .fskip = 0, .sskip = 0 };
+            int ret = parseOptions(line, i, po);
+            if (ret < 0)
             {
-                ParseOptions po = { .fskip = 0, .sskip = 0 };
-                int ret = parseOptions(line, i, po);
-                if (ret < 0)
-                    return ret;
-
-                if (check_for_options == nextframe_char)
-                {
-                    if (po.fskip > 0)
-                    frame += -1 + po.sskip * frame_rate + po.fskip;
-                }
-                else if (check_for_options == nextstep_char)
-                {
-                    if (po.sskip > 0)
-                        frame += (po.sskip-1) * frame_rate;
-                }
-
-                ++i;
-                continue;
+                return ret;
             }
+
+            uint n = getFrameSkipFromOptions(po, check_for_options == nextstep_char);
+            if (check_for_options == nextframe_char)
+            {
+                if (po.fskip > 0)
+                    frame += (n - 1);
+            }
+            else if (check_for_options == nextstep_char)
+            {
+                if (po.sskip > 0)
+                    frame += (n - frame_rate);
+            }
+
             continue;
         }
 
@@ -99,10 +108,7 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
         }
         else
         {
-            char buff[2];
-            buff[0] = c;
-            buff[1] = 0L;
-            insertString(std::string(buff), frame);
+            insertChar(c, frame);
         }
 
         ++i;
@@ -113,9 +119,12 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
 
 int TypeWriter::parseOptions(const std::string& line, uint & i, ParseOptions & po)
 {
-    // go to the next char
-    ++i;
     char c = line[i];
+    if (c != optbeg_char)
+        return i;
+
+    ++i;
+    c = line[i];
 
     int n = 0;  // stores number of frames to skip
 
@@ -164,31 +173,208 @@ int TypeWriter::parseOptions(const std::string& line, uint & i, ParseOptions & p
 
 int TypeWriter::parseMacro(const std::string& line, uint & i, uint & frame)
 {
+    std::vector<std::string> string_list;
+    uint n = 0;
     char c = line[i];
     if (c == 'c')   // split by characters
     {
         ++i;
+
+        // calculate skip from options
+        ParseOptions po = { .fskip = 0, .sskip = 0 };
+        int ret = parseOptions(line, i, po);
+        if (ret < 0)
+        {
+            return ret;
+        }
+        n = getFrameSkipFromOptions(po);
+        if (n == 0)
+            n = 1;
+
         c = line[i];
+
         if (c != rangebeg_char)
             return -i-1;
 
-        while(c != rangeend_char and c)
+        ++i;
+        c = line[i];
+
+        while (c != rangeend_char and c)
         {
+            if (c == escape_char)
+            {
+                ++i;
+                c = line[i];
+                if (!c)
+                    return -i-1;
+            }
+
+            insertChar(c, frame);
+            frame += n;
+
             ++i;
             c = line[i];
-            // TODO insert string
-            ++frame;
         }
     }
     else if (c == 'w')   // split by words
     {
+        ++i;
+
+        // calculate skip from options
+        ParseOptions po = { .fskip = 0, .sskip = 0 };
+        int ret = parseOptions(line, i, po);
+        if (ret < 0)
+        {
+            return ret;
+        }
+        n = getFrameSkipFromOptions(po);
+        if (n == 0)
+            n = 1;
+
+        c = line[i];
+
+        if (c != rangebeg_char)
+            return -i-1;
+
+        ++i;
+        c = line[i];
+
+        size_t i_end = i;
+        while (true)
+        {
+            // search for range end
+            i_end = line.find_first_of(rangeend_char, i_end);
+
+            // if end of string, error
+            if (i_end == line.npos)
+                return -i_end-1;
+
+            // chack if endrange char is not escaped
+            if (line[i_end-1] != escape_char or line[i_end-2] == escape_char)
+                break;
+
+            ++i_end;
+        }
+
+        std::string substr = line.substr(i, i_end-i);
+
+        size_t pos = 0;
+        while (true)
+        {
+            pos = substr.find_first_of(escape_char, pos);
+            if (pos == substr.npos)
+                break;
+            substr.replace(pos, 1, "");
+        }
+
+        pos = 0;
+        size_t pos2 = 0;
+        std::string s;
+        while (pos2 != substr.npos)
+        {
+            pos2 = substr.find_first_of(" \t\n", pos);
+            if (pos2 != substr.npos)
+            {
+                pos2 = substr.find_first_not_of(" \t\n", pos2);
+                if (pos2 != substr.npos)
+                    s = substr.substr(pos, pos2-pos);
+                else
+                    s = substr.substr(pos, -1);
+            }
+            else
+            {
+                s = substr.substr(pos, -1);
+            }
+
+            insertString(s, frame);
+            frame += n;
+            pos = pos2;
+        }
+        i = i_end;
+        ++i;
     }
-    if (c == 'l')   // split by lines
+    else if (c == 'l')   // split by lines
     {
+       ++i;
+
+        // calculate skip from options
+        ParseOptions po = { .fskip = 0, .sskip = 0 };
+        int ret = parseOptions(line, i, po);
+        if (ret < 0)
+        {
+            return ret;
+        }
+        n = getFrameSkipFromOptions(po);
+        if (n == 0)
+            n = 1;
+
+        c = line[i];
+
+        if (c != rangebeg_char)
+            return -i-1;
+
+        ++i;
+        c = line[i];
+
+        size_t i_end = i;
+        while (true)
+        {
+            // search for range end
+            i_end = line.find_first_of(rangeend_char, i_end);
+
+            // if end of string, error
+            if (i_end == line.npos)
+                return -i_end-1;
+
+            // chack if endrange char is not escaped
+            if (line[i_end-1] != escape_char or line[i_end-2] == escape_char)
+                break;
+
+            ++i_end;
+        }
+
+        std::string substr = line.substr(i, i_end-i);
+
+        size_t pos = 0;
+        while (true)
+        {
+            pos = substr.find_first_of(escape_char, pos);
+            if (pos == substr.npos)
+                break;
+            substr.replace(pos, 1, "");
+        }
+
+        pos = 0;
+        size_t pos2 = 0;
+        std::string s;
+        while (pos2 != substr.npos)
+        {
+            pos2 = substr.find_first_of("\n", pos);
+            if (pos2 != substr.npos)
+            {
+                pos2 = substr.find_first_not_of("\n", pos2);
+                if (pos2 != substr.npos)
+                    s = substr.substr(pos, pos2-pos);
+                else
+                    s = substr.substr(pos, -1);
+            }
+            else
+            {
+                s = substr.substr(pos, -1);
+            }
+
+            insertString(s, frame);
+            frame += n;
+            pos = pos2;
+        }
+        i = i_end;
+        ++i;
     }
     else    // error
     {
         return -i-1;
     }
+
+    ++i;
     return i;
 }
