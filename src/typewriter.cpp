@@ -4,12 +4,11 @@
 
 using namespace std;
 
-TypeWriter::TypeWriter() :
-    frame_rate(25),
-    command_char(':'), nextframe_char(','), nextstep_char('>'), delkey_char('<'),
-    optbeg_char('['), optend_char(']'), rangebeg_char('{'), rangeend_char('}'),
-    escape_char('\\')
+TypeWriter::TypeWriter() : frame_rate(25)
 {
+    sq.first= nullptr;
+    sq.current = nullptr;
+    sq.last = nullptr;
 }
 
 TypeWriter::~TypeWriter()
@@ -19,42 +18,26 @@ TypeWriter::~TypeWriter()
 
 void TypeWriter::clear()
 {
-    for (uint i = 0; i < strings.size(); ++i)
+    Frame * f = sq.first;
+    while (f)
     {
-        Frame * f = strings[i].first;
-        while (!f)
-        {
-            Frame * f2 = f->next;
-            delete f;
-            f = f2;
-        }
+        Frame * f2 = f->next;
+        delete f;
+        f = f2;
     }
-    strings.clear();
 }
 
 bool TypeWriter::parse()
 {
     clear();
 
-    std::stringstream ss(raw_string);
-    std::string to;
-    std::vector<std::string> lines;
-
     int start_frame = 0;
-    uint lineno = 0;
-    while(std::getline(ss, to))
+    int ret = parseString(raw_string, start_frame);
+    if (ret < 0)
     {
-        lines.push_back(to);
-
-        int ret = parseLine(lineno, to, start_frame);
-        if (ret < 0)
-        {
-            fprintf(stderr, "Parsing error:\n%s\n", to.c_str());
-            fprintf(stderr, "%*c%c\n", -ret-1, ' ', '^');
-            return false;
-        }
-
-        ++lineno;
+        fprintf(stderr, "Parsing error:\n%.*s\n", -ret-1, raw_string.c_str());
+        fprintf(stderr, "%*c%c\n", -ret-1, ' ', '^');
+        return false;
     }
 
     return true;
@@ -62,34 +45,26 @@ bool TypeWriter::parse()
 
 std::string TypeWriter::render(uint frame)
 {
-    std::stringstream ss;
-    for (uint i = 0; i < strings.size(); ++i)
+    if (!sq.first)
+        return std::string();
+
+    // start with current frame
+    Frame * f = sq.current;
+
+    // but if current is ahead 'frame', start from beginning
+    if (f->frame > frame)
+        f = sq.first;
+
+    while (true)
     {
-        if (i > 0)
-            ss << "\n";
-
-        if (!strings[i].first)
-            continue;
-
-        // start with current frame
-        Frame * f = strings[i].current;
-
-        // but if current is ahead 'frame', start from beginning
-        if (f->frame > frame)
-            f = strings[i].first;
-
-        while (true)
-        {
-            if (!f->next or f->next->frame > frame)
-                break;
-            else
-                f = f->next;
-        }
-        ss << f->s;
-        strings[i].current = f;
+        if (!f->next or f->next->frame > frame)
+            break;
+        else
+            f = f->next;
     }
 
-    return ss.str();
+    sq.current = f;
+    return f->s;
 }
 
 Frame::Frame() : frame(0), next(nullptr), prev(nullptr), bypass(nullptr)

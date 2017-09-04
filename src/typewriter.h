@@ -54,27 +54,18 @@ public:
     void clear();
 
 private:
-    int parseLine(uint lineno, const std::string & line, int start_frame);
+    int parseString(const std::string & line, int start_frame);
 
     struct ParseOptions;
     int parseOptions(const std::string& line, uint & i, ParseOptions & po);
+    int parseCommand(const std::string& line, uint & i, uint & frame);
 
 private:
     size_t frame_rate;
 
-    const char command_char;
-    const char nextframe_char;
-    const char nextstep_char;
-    const char delkey_char;
-    const char optbeg_char;
-    const char optend_char;
-    const char rangebeg_char;
-    const char rangeend_char;
-    const char escape_char;
-
     std::string raw_string;
 
-    std::vector<StringQueue> strings;   // strings
+    StringQueue sq;   // strings
 };
 
 #else

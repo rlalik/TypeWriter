@@ -2,17 +2,24 @@
 
 #include <string>
 
+const char command_char = ':';
+const char nextframe_char = ',';
+const char nextstep_char = '>';
+const char delkey_char = '<';
+const char optbeg_char = '[';
+const char optend_char = ']';
+const char rangebeg_char = '{';
+const char rangeend_char = '}';
+const char escape_char = '\\';
+
 struct TypeWriter::ParseOptions
 {
     uint fskip;
     uint sskip;
 };
 
-int TypeWriter::parseLine(uint lineno, const std::string& line, int start_frame)
+int TypeWriter::parseString(const std::string& line, int start_frame)
 {
-    StringQueue sq;
-    sq.first = 0;
-
     size_t limit = line.length();
 
     uint frame = start_frame;
@@ -54,6 +61,13 @@ int TypeWriter::parseLine(uint lineno, const std::string& line, int start_frame)
 
             frame += frame_rate;
             check_for_options = nextstep_char;
+        }
+        else if (c == command_char)
+        {
+            ++i;
+            int ret = parseCommand(line, i, frame);
+            if (ret < 0)
+                return ret;
         }
 
         if (check_for_options)
@@ -113,7 +127,6 @@ int TypeWriter::parseLine(uint lineno, const std::string& line, int start_frame)
     }
 
     sq.last = last_frame;
-    strings.push_back(sq);
 
     return frame;
 }
@@ -166,5 +179,32 @@ int TypeWriter::parseOptions(const std::string& line, uint & i, ParseOptions & p
 
     ++i;
 
+    return i;
+}
+
+int TypeWriter::parseCommand(const std::string& line, uint & i, uint & frame)
+{
+    char c = line[i];
+    if (c == 'c')   // split by characters
+    {
+        ++i;
+        c = line[i];
+        if (c != rangebeg_char)
+            return -i-1;
+
+        while(c != rangeend_char and c)
+        {
+        }
+    }
+    else if (c == 'w')   // split by words
+    {
+    }
+    if (c == 'l')   // split by lines
+    {
+    }
+    else    // error
+    {
+        return -i-1;
+    }
     return i;
 }
