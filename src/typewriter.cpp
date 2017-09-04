@@ -40,14 +40,19 @@ bool TypeWriter::parse()
     std::string to;
     std::vector<std::string> lines;
 
+    int start_frame = 0;
     uint lineno = 0;
     while(std::getline(ss, to))
     {
         lines.push_back(to);
 
-        bool ret = parseLine(lineno, to);
-        if (!ret)
+        int ret = parseLine(lineno, to, start_frame);
+        if (ret < 0)
+        {
+            fprintf(stderr, "Parsing error:\n%s\n", to.c_str());
+            fprintf(stderr, "%*c%c\n", -ret-1, ' ', '^');
             return false;
+        }
 
         ++lineno;
     }
@@ -55,14 +60,14 @@ bool TypeWriter::parse()
     return true;
 }
 
-bool TypeWriter::parseLine(uint lineno, const std::string& line)
+int TypeWriter::parseLine(uint lineno, const std::string& line, int start_frame)
 {
     StringQueue sq;
     sq.first = 0;
 
     size_t limit = line.length();
 
-    uint frame = 0;
+    uint frame = start_frame;
     std::string frame_text;
 
     Frame * last_frame = new Frame;
@@ -89,7 +94,7 @@ bool TypeWriter::parseLine(uint lineno, const std::string& line)
             // go to the next char
             ++i;
             if (i == limit) // if end of line reach, parsing error
-                return false;
+                return -i-1;
 
             c = line[i];
 
@@ -99,7 +104,7 @@ bool TypeWriter::parseLine(uint lineno, const std::string& line)
             while (c != optend_char)
             {
                 if (expect_end)
-                    return false;
+                    return -i-1;
 
                 // if is digit then add to frames skip number
                 if (isdigit(c))
@@ -121,12 +126,12 @@ bool TypeWriter::parseLine(uint lineno, const std::string& line)
                 else
                 {
                     // unexpected character
-                    return false;
+                    return -i-1;
                 }
 
                 ++i;
                 if (i == limit) // if end of line reach, parsing error
-                    return false;
+                    return -i-1;
 
                 c = line[i];
             }
@@ -170,7 +175,7 @@ bool TypeWriter::parseLine(uint lineno, const std::string& line)
 
     strings.push_back(sq);
 
-    return true;
+    return frame;
 }
 
 std::string TypeWriter::render(uint frame)
@@ -234,7 +239,7 @@ void tw_init(CTypeWriter * tw)
 
 void tw_delete(CTypeWriter * tw)
 {
-    delete tw->tw;
+    delete (TypeWriter*)tw->tw;
     tw->tw = 0;
 }
 
@@ -253,9 +258,9 @@ void tw_setRawString(CTypeWriter * tw, const char * str)
     ((TypeWriter*)tw->tw)->setRawString(str);
 }
 
-void tw_parse(CTypeWriter * tw)
+int tw_parse(CTypeWriter * tw)
 {
-    ((TypeWriter*)tw->tw)->parse();
+    return ((TypeWriter*)tw->tw)->parse();
 }
 
 void tw_render(CTypeWriter * tw, unsigned int frame, char * str, int length)

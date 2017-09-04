@@ -14,7 +14,8 @@ int main(int argc, char ** argv)
     else
         tw_setRawString(&tw, "T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
 
-    tw_parse(&tw);
+    if (!tw_parse(&tw))
+        return 1;
 
     unsigned int total_sec = 10;
     unsigned int fr = tw_getFrameRate(&tw);

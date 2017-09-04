@@ -22,7 +22,6 @@ struct Frame
     std::string s;
 
     void print();
-//     std::string & str();
     void link(Frame * p);
     void addBypass();
 
@@ -49,7 +48,7 @@ public:
     void clear();
 
 private:
-    bool parseLine(uint lineno, const std::string & line);
+    int parseLine(uint lineno, const std::string & line, int start_frame);
 
 private:
     size_t frame_rate;
@@ -83,7 +82,7 @@ extern void tw_delete(struct CTypeWriter * tw);
 extern void tw_setFrameRate(struct CTypeWriter * tw, unsigned int fr);
 extern unsigned int tw_getFrameRate(struct CTypeWriter * tw);
 extern void tw_setRawString(struct CTypeWriter * tw, const char * str);
-extern void tw_parse(struct CTypeWriter * tw);
+extern int tw_parse(struct CTypeWriter * tw);
 extern void tw_render(struct CTypeWriter * tw, unsigned int frame, char * str, int length);
 
 #endif

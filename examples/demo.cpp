@@ -11,7 +11,8 @@ int main(int argc, char ** argv)
         tw.setRawString(
             "T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
 
-    tw.parse();
+    if (!tw.parse())
+        return 1;
 
     uint total_sec = 10;
     uint fr = tw.getFrameRate();
