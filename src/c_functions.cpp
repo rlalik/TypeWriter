@@ -37,3 +37,8 @@ void tw_render(CTypeWriter * tw, unsigned int frame, char * str, int length)
 {
     std::strncpy(str, ((TypeWriter*)tw->tw)->render(frame).c_str(), length);
 }
+
+void tw_print(CTypeWriter * tw)
+{
+    ((TypeWriter*)tw->tw)->print();
+}

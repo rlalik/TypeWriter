@@ -49,7 +49,7 @@ uint TypeWriter::getOrInsertFrame(uint frame)
     uint n = frames.size();
     if (!n)
     {
-        frames.push_back(Frame(n, frame));
+        frames.push_back(Frame(frame));
         last_used_idx = 0;
         return 0;
     }
@@ -57,7 +57,7 @@ uint TypeWriter::getOrInsertFrame(uint frame)
     if (frames[n-1].frame >= frame)
         return n-1;
 
-    Frame f = Frame(n, frame);
+    Frame f = Frame(frame);
     f.s = frames[n-1].s;
     frames.push_back(f);
 
@@ -75,16 +75,14 @@ void TypeWriter::insertString(const std::string & str, uint frame)
 {
     uint n = getOrInsertFrame(frame);
     Frame & f = frames[n];
-
     f.s.append(str);
 }
 
 void TypeWriter::insertBypass(uint frame)
 {
     uint n = getOrInsertFrame(frame);
-    Frame & f = frames[n];
 
-    f.addBypass();
+    addBypass(n);
 }
 
 std::string TypeWriter::render(uint frame)
@@ -113,28 +111,32 @@ std::string TypeWriter::render(uint frame)
     return frames[last_used_idx].s;
 }
 
-Frame::Frame(uint idx, uint frame) : idx(idx), frame(frame), bypass(-1)
+void TypeWriter::addBypass(uint idx)
+{
+    if (frames[idx].bypass == -2)
+    {
+        if (idx > 0)
+            frames[idx].bypass = idx - 2;
+    }
+    else if (frames[idx].bypass >= 0)
+    {
+            --(frames[idx].bypass);
+    }
+
+    if (frames[idx].bypass >= 0)
+        frames[idx].s = frames[frames[idx].bypass].s;
+    else
+        frames[idx].s.clear();
+}
+
+Frame::Frame(uint frame) : frame(frame), bypass(-2)
 {
 }
 
 void Frame::print()
 {
     printf("%c [%d at 0x%lx] %s %c\n",
-           idx > 0 ? '-' : '|',
+           true ? '-' : '|',
            frame, (void*)this, s.c_str(),
            true ? '-' : '|');
-}
-
-void Frame::addBypass()
-{
-    if (bypass == -1)
-    {
-        if (idx > 0)
-            bypass = idx - 1;
-    }
-    else
-    {
-        if (bypass > 1)
-            --bypass;
-    }
 }

@@ -89,12 +89,12 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
             uint n = getFrameSkipFromOptions(po, check_for_options == nextstep_char);
             if (check_for_options == nextframe_char)
             {
-                if (po.fskip > 0)
+                if (n > 0)
                     frame += (n - 1);
             }
             else if (check_for_options == nextstep_char)
             {
-                if (po.sskip > 0)
+                if (n > 0)
                     frame += (n - frame_rate);
             }
 

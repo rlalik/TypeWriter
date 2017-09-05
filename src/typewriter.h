@@ -16,15 +16,13 @@ using namespace std;
 
 struct Frame
 {
-    Frame(uint idx, uint frame);
+    Frame(uint frame);
 
-    uint idx;
     uint frame;
     std::string s;
     int bypass;
 
     void print();
-    void addBypass();
 };
 
 class TypeWriter
@@ -43,6 +41,7 @@ public:
     std::string render(uint frame);
 
     void clear();
+    void print() const { for (Frame f : frames) f.print(); }
 
 private:
     int parseString(const std::string & line, int start_frame);
@@ -58,6 +57,7 @@ private:
     uint getFrameSkipFromOptions(const ParseOptions & po, bool steps = false);
 
     uint getOrInsertFrame(uint frame);
+    void addBypass(uint idx);
 
 private:
     size_t frame_rate;
@@ -87,6 +87,7 @@ extern unsigned int tw_getFrameRate(struct CTypeWriter * tw);
 extern void tw_setRawString(struct CTypeWriter * tw, const char * str);
 extern int tw_parse(struct CTypeWriter * tw);
 extern void tw_render(struct CTypeWriter * tw, unsigned int frame, char * str, int length);
+extern void tw_print(struct CTypeWriter * tw);
 
 #endif
 #ifdef __cplusplus

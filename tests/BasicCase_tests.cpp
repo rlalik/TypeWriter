@@ -70,24 +70,24 @@ void BasicCase_tests::TestFrameSkip()
     CPPUNIT_ASSERT_EQUAL(std::string("abc"), tw.render(5));
     CPPUNIT_ASSERT_EQUAL(std::string("ad"), tw.render(6));
 
-    tw.setRawString("a,b,[4f]c,<<d");
+    tw.setRawString("e,f,[4f]g,<<h");
     CPPUNIT_ASSERT_EQUAL(true, tw.parse());
-    CPPUNIT_ASSERT_EQUAL(std::string("a"), tw.render(0));
-    CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(1));
-    CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(2));
-    CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(3));
-    CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(4));
-    CPPUNIT_ASSERT_EQUAL(std::string("abc"), tw.render(5));
-    CPPUNIT_ASSERT_EQUAL(std::string("ad"), tw.render(6));
+    CPPUNIT_ASSERT_EQUAL(std::string("e"), tw.render(0));
+    CPPUNIT_ASSERT_EQUAL(std::string("ef"), tw.render(1));
+    CPPUNIT_ASSERT_EQUAL(std::string("ef"), tw.render(2));
+    CPPUNIT_ASSERT_EQUAL(std::string("ef"), tw.render(3));
+    CPPUNIT_ASSERT_EQUAL(std::string("ef"), tw.render(4));
+    CPPUNIT_ASSERT_EQUAL(std::string("efg"), tw.render(5));
+    CPPUNIT_ASSERT_EQUAL(std::string("eh"), tw.render(6));
 
-    tw.setRawString("a,b,[4s]c,<<d");
-    CPPUNIT_ASSERT_EQUAL(true, tw.parse());
-    CPPUNIT_ASSERT_EQUAL(std::string("a"), tw.render(0));
-    CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(1));
-    CPPUNIT_ASSERT_EQUAL(std::string("ab"), tw.render(1 + 4*tw.getFrameRate()-1));
-    CPPUNIT_ASSERT_EQUAL(std::string("abc"), tw.render(1 + 4*tw.getFrameRate()));
-    CPPUNIT_ASSERT_EQUAL(std::string("ad"), tw.render(1 + 4*tw.getFrameRate()+1));
+    tw.setRawString("i,j,[4s]k,<<l");
+    CPPUNIT_ASSERT_EQUAL(true, tw.parse());tw.print();
+    CPPUNIT_ASSERT_EQUAL(std::string("i"), tw.render(0));
+    CPPUNIT_ASSERT_EQUAL(std::string("ij"), tw.render(1));
+    CPPUNIT_ASSERT_EQUAL(std::string("ij"), tw.render(1 + 4*tw.getFrameRate()-1));
+    CPPUNIT_ASSERT_EQUAL(std::string("ijk"), tw.render(1 + 4*tw.getFrameRate()));
+    CPPUNIT_ASSERT_EQUAL(std::string("il"), tw.render(1 + 4*tw.getFrameRate()+1));
 
-    tw.setRawString("a,b,[4g]c,<<d");
+    tw.setRawString("m,n,[4g]o,<<p");
     CPPUNIT_ASSERT_EQUAL(false, tw.parse());
 }
