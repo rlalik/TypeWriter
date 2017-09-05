@@ -4,28 +4,25 @@
 
 using namespace std;
 
-TypeWriter::TypeWriter() : frame_rate(25)
+TypeWriter::TypeWriter() : frame_rate(25), last_used_idx(-1)
 {
-    sq.first= nullptr;
-    sq.current = nullptr;
-    sq.last = nullptr;
 }
 
 TypeWriter::~TypeWriter()
 {
-    clear();
 }
 
 void TypeWriter::clear()
 {
-    Frame * f = sq.first;
-    while (f)
-    {
-        Frame * f2 = f->next;
-        delete f;
-        f = f2;
-    }
+    frames.clear();
 }
+
+void TypeWriter::setRawString(const std::string& str)
+{
+    raw_string = str;
+    frames.reserve(raw_string.length());
+}
+
 
 bool TypeWriter::parse()
 {
@@ -43,39 +40,28 @@ bool TypeWriter::parse()
     return true;
 }
 
-Frame * TypeWriter::getOrInsertFrame(uint frame)
+uint TypeWriter::getOrInsertFrame(uint frame)
 {
     // create new or reuse old frame
-    // by design sq.last->frame cannot be larger than frame
+    // by design last->frame cannot be larger than frame
     // take the last frame then FIXME: should we break parser here?
 
-    if (!sq.last)
+    uint n = frames.size();
+    if (!n)
     {
-        Frame * f = new Frame;
-        sq.first = f;
-        sq.current = f;
-        sq.last = f;
-
-        return f;
+        frames.push_back(Frame(n, frame));
+        last_used_idx = 0;
+        return 0;
     }
 
-    if (sq.last->frame > frame)
-        return sq.last;
+    if (frames[n-1].frame >= frame)
+        return n-1;
 
-    if (sq.last->frame < frame)
-    {
-        Frame * f = new Frame;
-        f->frame = frame;
-        f->s = sq.last->s;
+    Frame f = Frame(n, frame);
+    f.s = frames[n-1].s;
+    frames.push_back(f);
 
-        // add it to the chain
-        f->link(sq.last);
-
-        // move iterator
-        sq.last = f;
-    }
-
-    return sq.last;
+    return n;
 }
 
 void TypeWriter::insertChar(char c, uint frame)
@@ -87,67 +73,68 @@ void TypeWriter::insertChar(char c, uint frame)
 
 void TypeWriter::insertString(const std::string & str, uint frame)
 {
-    Frame * f = getOrInsertFrame(frame);
+    uint n = getOrInsertFrame(frame);
+    Frame & f = frames[n];
 
-    f->s.append(str);
+    f.s.append(str);
 }
 
 void TypeWriter::insertBypass(uint frame)
 {
-    Frame * f = getOrInsertFrame(frame);
+    uint n = getOrInsertFrame(frame);
+    Frame & f = frames[n];
 
-    f->addBypass();
+    f.addBypass();
 }
 
 std::string TypeWriter::render(uint frame)
 {
-    if (!sq.first)
+    uint n = frames.size();
+    if (!n)
         return std::string();
 
     // start with current frame
-    Frame * f = sq.current;
+    Frame f = frames[last_used_idx];
 
     // but if current is ahead 'frame', start from beginning
-    if (f->frame > frame)
-        f = sq.first;
+    if (f.frame > frame)
+        last_used_idx = 0;
 
-    while (true)
+    if (frames[last_used_idx].frame > frame)
+        return std::string();
+
+    for (; last_used_idx < n-1; ++last_used_idx)
     {
-        if (!f->next or f->next->frame > frame)
-            break;
-        else
-            f = f->next;
+        f = frames[last_used_idx+1];
+        if (f.frame > frame)
+            return frames[last_used_idx].s;
     }
 
-    sq.current = f;
-    return f->s;
+    return frames[last_used_idx].s;
 }
 
-Frame::Frame() : frame(0), next(nullptr), prev(nullptr), bypass(nullptr)
+Frame::Frame(uint idx, uint frame) : idx(idx), frame(frame), bypass(-1)
 {
 }
 
 void Frame::print()
 {
-    printf("%c [%d] %s %c\n",
-           prev ? '-' : '|',
-           frame, s.c_str(),
-           next ? '-' : '|');
-}
-
-void Frame::link(Frame* p)
-{
-    prev = p;
-    p->next = this;
+    printf("%c [%d at 0x%lx] %s %c\n",
+           idx > 0 ? '-' : '|',
+           frame, (void*)this, s.c_str(),
+           true ? '-' : '|');
 }
 
 void Frame::addBypass()
 {
-    if (bypass)
-        bypass = bypass->prev;
-    else if (prev)
-        bypass = prev->prev;
-
-    if (bypass)
-        s = bypass->s;
+    if (bypass == -1)
+    {
+        if (idx > 0)
+            bypass = idx - 1;
+    }
+    else
+    {
+        if (bypass > 1)
+            --bypass;
+    }
 }

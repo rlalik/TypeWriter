@@ -16,24 +16,15 @@ using namespace std;
 
 struct Frame
 {
-    Frame();
+    Frame(uint idx, uint frame);
 
+    uint idx;
     uint frame;
     std::string s;
+    int bypass;
 
     void print();
-    void link(Frame * p);
     void addBypass();
-
-    Frame * next;
-    Frame * prev;
-    Frame * bypass;
-};
-
-struct StringQueue {
-    Frame * first;
-    Frame * current;
-    Frame * last;
 };
 
 class TypeWriter
@@ -45,7 +36,7 @@ public:
     void setFrameRate(uint fr) { frame_rate = fr; }
     uint getFrameRate() const { return frame_rate; }
 
-    void setRawString(const std::string & str) { raw_string = str; }
+    void setRawString(const std::string & str);
     std::string getRawString() const { return raw_string; }
 
     bool parse();
@@ -66,14 +57,15 @@ private:
 
     uint getFrameSkipFromOptions(const ParseOptions & po, bool steps = false);
 
-    Frame * getOrInsertFrame(uint frame);
+    uint getOrInsertFrame(uint frame);
 
 private:
     size_t frame_rate;
 
     std::string raw_string;
 
-    StringQueue sq;   // strings
+    std::vector<Frame> frames;
+    uint last_used_idx;
 };
 
 #else
