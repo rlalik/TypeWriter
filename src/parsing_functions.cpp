@@ -16,6 +16,9 @@ const char escape_char = '\\';
 
 struct TypeWriter::ParseOptions
 {
+    ParseOptions() : n(0), fskip(0), sskip(0) {}
+
+    uint n;
     uint fskip;
     uint sskip;
 };
@@ -23,9 +26,9 @@ struct TypeWriter::ParseOptions
 uint TypeWriter::getFrameSkipFromOptions(const ParseOptions & po, bool steps)
 {
     if (steps)
-        return po.sskip * frame_rate;
+        return (po.n + po.sskip) * frame_rate;
     else
-        return po.sskip * frame_rate + po.fskip;
+        return po.sskip * frame_rate + po.fskip + po.n;
 }
 
 int TypeWriter::parseString(const std::string& line, int start_frame)
@@ -79,7 +82,7 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
             ++i;
             c = line[i];
 
-            ParseOptions po = { .fskip = 0, .sskip = 0 };
+            ParseOptions po;
             int ret = parseOptions(line, i, po);
             if (ret < 0)
             {
@@ -104,14 +107,33 @@ int TypeWriter::parseString(const std::string& line, int start_frame)
         // append values
         if (!was_escaped and c == delkey_char)
         {
-            insertBypass(frame);
+            // get next char and check whether it is an option
+            ++i;
+            c = line[i];
+
+            ParseOptions po;
+            po.n = 1;
+            int ret = parseOptions(line, i, po);
+            if (ret < 0)
+            {
+                return ret;
+            }
+
+            for (uint i = 0; i < po.n; ++i)
+                insertBypass(frame);
         }
         else
         {
+            if (was_escaped)
+            {
+                if (c == 'n')
+                    c = '\n';
+                else if (c == 't')
+                    c = '\t';
+            }
             insertChar(c, frame);
+            ++i;
         }
-
-        ++i;
     }
 
     return frame;
@@ -151,7 +173,7 @@ int TypeWriter::parseOptions(const std::string& line, uint & i, ParseOptions & p
         else if (c == ',')
         {
             if (n)
-                po.fskip = n;
+                po.n = n;
         }
         else
         {
@@ -164,7 +186,7 @@ int TypeWriter::parseOptions(const std::string& line, uint & i, ParseOptions & p
     }
 
     if (n)
-        po.fskip = n;
+        po.n = n;
 
     ++i;
 
@@ -181,7 +203,7 @@ int TypeWriter::parseMacro(const std::string& line, uint & i, uint & frame)
         ++i;
 
         // calculate skip from options
-        ParseOptions po = { .fskip = 0, .sskip = 0 };
+        ParseOptions po;
         int ret = parseOptions(line, i, po);
         if (ret < 0)
         {
@@ -221,7 +243,7 @@ int TypeWriter::parseMacro(const std::string& line, uint & i, uint & frame)
         ++i;
 
         // calculate skip from options
-        ParseOptions po = { .fskip = 0, .sskip = 0 };
+        ParseOptions po;
         int ret = parseOptions(line, i, po);
         if (ret < 0)
         {
@@ -295,10 +317,10 @@ int TypeWriter::parseMacro(const std::string& line, uint & i, uint & frame)
     }
     else if (c == 'l')   // split by lines
     {
-       ++i;
+        ++i;
 
         // calculate skip from options
-        ParseOptions po = { .fskip = 0, .sskip = 0 };
+        ParseOptions po;
         int ret = parseOptions(line, i, po);
         if (ret < 0)
         {

@@ -6,17 +6,39 @@ Main feautures
 --------------
 
 * uses 'frame' and 'step' units - step should be associated with one second,
+* provides macros for processing large portions of text in terms of characters, words and lines
 * by defualt there is 25 frames per step (second),
 
+Usage
+=====
 
-String formatting
+TypeWriter uses control sequences and macros to render sequence of rendered strings. Some of the control sequences and macros can be modified by additinal option parameters:
+
+Options
+-------
+Options must be enclosed in [] brackets and follow directly control sequence or macro. Currently there are following options supported:
+
+* *n* --- number, its usage may vary between various control sequences and commands
+* *n*f --- number of frames,
+* *n*s --- number of steps,
+
+Control sequences
 -----------------
-* '>' - next frame
-* '>{n}' or '>{nf}' - next n-frames
-* '>{ns}' - next n-steps
-* '<' - delete string from the last frame (multiple '<' delete more frames)
+In below, each presence of [...] denotes which options are accepted and are optional (non-accepted options are ignored). Non of the sequences have mandatory options.
 
-See also examples/demo.cpp
+* ',[*n*,*n*f,*n*s]' -- next frame(s), available options *n*, *n*f (skip *n* frames), *n*s (skip *n* steps, equivalent of *n*\*fps frames), frames and steps are additive,
+* '>[*n*,*n*s]' -- next step(s), available options *n*, *n*s (skip *n* steps, equivalent of *n*\*fps frames), steps *n*s if passed are ignored, *n* and *n*s are additive,
+* '<[*n*]*text*' -- delete string from the last frame (multiple '<' delete more frames), available options: *n* - delete n-last non-empty frames, can be followed by a text but any text before '<' will be ignored,
+* '\' -- escapes any follwoing character from being interpreted as control sequence or macro, for '\n' and '\t' inserts newline or tabular.
+
+Macros
+------
+
+Each macro starts with : followed by the letter containing operation, next options [] can be passed and macro must contain pair of {} brackets with the macro content inside.
+
+* :c[*n*,*n*f,*n*s]{*text*} -- split text into characters and insert every *n*+*n*s + *n*s*fps frames (if options are not given, default is 1 frame), preserves newline '\n' and tabulators '\t',
+* :w[*n*,*n*f,*n*s]{*text*} -- split text into words, rest like for characters,
+* :l[*n*,*n*f,*n*s]{*text*} -- split text into lines, rest like for characters,
 
 Minimum example
 ---------------
@@ -74,6 +96,7 @@ extern void tw_finish(struct CTypeWriter * tw);
 extern void tw_setFrameRate(struct CTypeWriter * tw, unsigned int fr);
 extern unsigned int tw_getFrameRate(struct CTypeWriter * tw);
 extern void tw_setRawString(struct CTypeWriter * tw, const char * str);
-extern void tw_parse(struct CTypeWriter * tw);
+extern int tw_parse(struct CTypeWriter * tw);
 extern void tw_render(struct CTypeWriter * tw, unsigned int frame, char * str, int length);
+extern void tw_print(struct CTypeWriter * tw);
 ```

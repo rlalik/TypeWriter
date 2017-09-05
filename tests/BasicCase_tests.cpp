@@ -81,7 +81,7 @@ void BasicCase_tests::TestFrameSkip()
     CPPUNIT_ASSERT_EQUAL(std::string("eh"), tw.render(6));
 
     tw.setRawString("i,j,[4s]k,<<l");
-    CPPUNIT_ASSERT_EQUAL(true, tw.parse());tw.print();
+    CPPUNIT_ASSERT_EQUAL(true, tw.parse());
     CPPUNIT_ASSERT_EQUAL(std::string("i"), tw.render(0));
     CPPUNIT_ASSERT_EQUAL(std::string("ij"), tw.render(1));
     CPPUNIT_ASSERT_EQUAL(std::string("ij"), tw.render(1 + 4*tw.getFrameRate()-1));
