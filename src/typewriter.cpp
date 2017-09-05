@@ -113,15 +113,30 @@ std::string TypeWriter::render(uint frame)
 
 void TypeWriter::addBypass(uint idx)
 {
+    int pidx = -1;
+
     if (frames[idx].bypass == -2)
+        pidx = idx-1;
+    else
+        pidx = frames[idx].bypass;
+
+    if (frames[idx].bypass == -1)
+        return;
+
+    while (true)
     {
-        if (idx > 0)
-            frames[idx].bypass = idx - 2;
+        if (frames[pidx].bypass >= 0)
+        {
+            pidx = frames[pidx].bypass;
+        }
+        else
+        {
+            --pidx;
+            break;
+        }
     }
-    else if (frames[idx].bypass >= 0)
-    {
-            --(frames[idx].bypass);
-    }
+
+    frames[idx].bypass = pidx;
 
     if (frames[idx].bypass >= 0)
         frames[idx].s = frames[frames[idx].bypass].s;
