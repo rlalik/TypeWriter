@@ -40,6 +40,8 @@ public:
     bool parse();
     std::string render(uint frame);
 
+    bool isEnd() const { return last_used_idx == frames.size()-1; }
+
     void clear();
     void print() const { for (Frame f : frames) f.print(); }
 
@@ -88,7 +90,7 @@ extern void tw_setRawString(struct CTypeWriter * tw, const char * str);
 extern int tw_parse(struct CTypeWriter * tw);
 extern void tw_render(struct CTypeWriter * tw, unsigned int frame, char * str, int length);
 extern void tw_print(struct CTypeWriter * tw);
-
+extern int tw_isEnd(struct CTypeWriter * tw);
 #endif
 #ifdef __cplusplus
 }

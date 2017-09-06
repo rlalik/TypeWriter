@@ -42,3 +42,8 @@ void tw_print(CTypeWriter * tw)
 {
     ((TypeWriter*)tw->tw)->print();
 }
+
+int tw_isEnd(CTypeWriter * tw)
+{
+    return ((TypeWriter*)tw->tw)->isEnd();
+}

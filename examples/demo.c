@@ -12,7 +12,7 @@ int main(int argc, char ** argv)
     if (argc > 1)
         tw_setRawString(&tw, argv[1]);
     else
-        tw_setRawString(&tw, "T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
+        tw_setRawString(&tw, "T,h,i,s,, is,[2] a,n,, e,x,m,a,<<a,m,p,l,e");
 
     if (!tw_parse(&tw))
         return 1;
@@ -23,15 +23,18 @@ int main(int argc, char ** argv)
 
     char last_str[200] = "";
     char str[200];
-    for (unsigned  int i = 0; i < total_sec * fr; ++i)
+
+    unsigned int i = 0;
+    while (!tw_isEnd(&tw))
     {
         tw_render(&tw, i, str, 200);
         if (strcmp(str, last_str) != 0)
         {
-            printf("[%2d] %s\n", i, str);
+            printf("[%3d] %s\n", i, str);
             strcpy(last_str, str);
         }
         usleep(step);
+        ++i;
     }
 
     tw_delete(&tw);

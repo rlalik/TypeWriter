@@ -152,6 +152,6 @@ void Frame::print()
 {
     printf("%c [%d at 0x%lx] %s %c\n",
            true ? '-' : '|',
-           frame, (void*)this, s.c_str(),
+           frame, (ulong)this, s.c_str(),
            true ? '-' : '|');
 }
