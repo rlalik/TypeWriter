@@ -75,7 +75,6 @@ uint TypeWriter::getOrInsertFrame(uint frame)
     if (!n)
     {
         frames.push_back(Frame(frame));
-        last_used_idx = 0;
         return 0;
     }
 
@@ -116,6 +115,9 @@ std::string TypeWriter::render(uint frame)
     if (!n)
         return std::string();
 
+    if (last_used_idx == -1)
+        ++last_used_idx;
+
     // start with current frame
     Frame f = frames[last_used_idx];
 
@@ -126,7 +128,7 @@ std::string TypeWriter::render(uint frame)
     if (frames[last_used_idx].frame > frame)
         return std::string();
 
-    for (; last_used_idx < n-1; ++last_used_idx)
+    for (; last_used_idx < (int)n-1; ++last_used_idx)
     {
         f = frames[last_used_idx+1];
         if (f.frame > frame)
@@ -138,6 +140,12 @@ std::string TypeWriter::render(uint frame)
 
 void TypeWriter::addBypass(uint idx)
 {
+    if (idx == 0)
+    {
+        frames[idx].s.clear();
+        return;
+    }
+
     int pidx = -1;
 
     if (frames[idx].bypass == -2)
@@ -145,7 +153,7 @@ void TypeWriter::addBypass(uint idx)
     else
         pidx = frames[idx].bypass;
 
-    if (frames[idx].bypass == -1)
+    if (pidx == -1)
         return;
 
     while (true)
@@ -175,8 +183,8 @@ Frame::Frame(uint frame) : frame(frame), bypass(-2)
 
 void Frame::print()
 {
-    printf("%c [%d at 0x%lx] %s %c\n",
+    printf("%c [%d] %s %c\n",
            true ? '-' : '|',
-           frame, (ulong)this, s.c_str(),
+           frame, s.c_str(),
            true ? '-' : '|');
 }

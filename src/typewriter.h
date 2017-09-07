@@ -65,7 +65,7 @@ public:
     bool parse();
     std::string render(uint frame);
 
-    bool isEnd() const { return last_used_idx == frames.size()-1; }
+    bool isEnd() const { return last_used_idx == (int)frames.size()-1; }
 
     void clear();
     void print() const { for (Frame f : frames) f.print(); }
@@ -92,7 +92,7 @@ private:
     std::string raw_string;
 
     std::vector<Frame> frames;
-    uint last_used_idx;
+    int last_used_idx;
 };
 
 #else
