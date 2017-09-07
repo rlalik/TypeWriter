@@ -72,6 +72,30 @@ will produce following chain of strings (numbers in brackets denote frame number
 
 See also examples/demo.cpp
 
+Demos and examples
+-----
+
+There are demo programs (they are not installable) which allows also to test your patterns or use default pattern (example above). To run default example execute (in your build directory)
+
+`examples/tw_demo`
+
+or
+
+`eamples/tw_demo "my_custom_string"`
+
+There are also files with examples, e.g.
+
+* `examples/lorem_c.txt` - pattern to print text char by char
+* `examples/lorem_w.txt` - pattern to print text word by word
+* `examples/lorem_l.txt` - pattern to print text line by line
+
+Use it following:
+
+`examples/tw_demo -i examples/lorem_c.txt`
+
+Additional switch `-f` allows to change frame rate, e.g.
+`examples/tw_demo -f 50`
+
 Installation
 ------------
 
@@ -99,4 +123,32 @@ extern void tw_setRawString(struct CTypeWriter * tw, const char * str);
 extern int tw_parse(struct CTypeWriter * tw);
 extern void tw_render(struct CTypeWriter * tw, unsigned int frame, char * str, int length);
 extern void tw_print(struct CTypeWriter * tw);
+extern int tw_isEnd(struct CTypeWriter * tw);
 ```
+
+Bypass mechanism
+----------------
+
+Bypass mechanics serves to properly traverse through the chain of strings in presence of delete char.
+
+Picture below explains idea of bypass. The example is for pattern=`x,x,x,x,<,<,<,y,y,y,<,<,z,<,<,a`. For sake of readibility, comas were skipped in the picture below.
+
+In the first four steps string of four *x* is created. In the next frame, a delete char *<* is present. Code goes to the previous frame, which is an initial string for current frame (full text) and then jumps to one frame back more, which is the expected frame. The bypass connection from this frame to current frame is established and the string is copied.
+
+In the next frame, again the delete hcar *<* is present, therefore we jump to frame before, but this time it has bypass link, so we go along bypass and we jump to one frame before.
+
+Tn general this is a recursive algorithm which can be described in five steps:
+
+1. When the delete char *<* is present in current frame (n), jump to previous frame (j=n-1)
+2. In a loop check if new (j) frame has a (b_j) bypass link and travel along it (j=b_j) until no more bypass links.
+3. Jump to the frame before (j=j-1).
+4. If the bypas link is present, jump recursively until no more bypass links (j=b_j)
+5. Establish new bypas connection in current frame (b_n=j). Copy string from that frame (str_n=str_j).
+
+Legend:
+
+* `------->` frame steps
+* `- - - ->` jumps
+* `<------>` bypass link
+
+![bypass chain](./doc/bypass.png)
