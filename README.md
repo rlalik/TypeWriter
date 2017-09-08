@@ -46,7 +46,7 @@ Minimum example
 ```C++
 TypeWriter tw;
 tw.setFrameRate(2);
-tw.setRawString("T>h>i>s>> is>{2} a>n>> e>x>m>a><<a>m>p>l>e");
+tw.setRawString("T>h>i>s>> is>[2] a>n>> e>x>m>a><<a>m>p>l>e");
 tw.parse();
 for (int i = 0; i < 20; ++i)
     printf("%s\n", tw.render(i).c_str());

@@ -48,7 +48,6 @@ void TypeWriter::setRawString(const std::string& str)
     frames.reserve(raw_string.length());
 }
 
-
 bool TypeWriter::parse()
 {
     clear();
