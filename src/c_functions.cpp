@@ -27,15 +27,18 @@
 
 #include <cstring>
 
-void tw_init(CTypeWriter * tw)
+CTypeWriter * tw_init()
 {
-    tw->tw = new TypeWriter;
+    CTypeWriter *ctw = new CTypeWriter;
+    ctw->tw = new TypeWriter;
+    return ctw;
 }
 
 void tw_delete(CTypeWriter * tw)
 {
     delete (TypeWriter*)tw->tw;
-    tw->tw = 0;
+    delete tw;
+    tw = 0;
 }
 
 void tw_setFrameRate(CTypeWriter * tw, unsigned int fr)
