@@ -26,12 +26,6 @@
 #ifndef TYPEWRITER_H
 #define TYPEWRITER_H
 
-// for C-interface
-struct CTypeWriter
-{
-    void * tw;
-};
-
 #ifdef __cplusplus
 
 #include <string>
@@ -68,7 +62,7 @@ public:
     bool isEnd() const { return last_used_idx == (int)frames.size()-1; }
 
     void clear();
-    void print() const { for (Frame f : frames) f.print(); }
+    void debug() const { for (Frame f : frames) f.print(); }
 
 private:
     int parseString(const std::string & line, int start_frame);
@@ -96,9 +90,8 @@ private:
 };
 
 #else
-
 typedef
-    struct CTypeWriter
+    void *
         TypeWriter;
 #endif
 
@@ -107,15 +100,17 @@ extern "C" {
 #endif
 #if defined(__STDC__) || defined(__cplusplus)
 
-extern struct CTypeWriter * tw_init();
-extern void tw_delete(struct CTypeWriter * tw);
-extern void tw_setFrameRate(struct CTypeWriter * tw, unsigned int fr);
-extern unsigned int tw_getFrameRate(struct CTypeWriter * tw);
-extern void tw_setRawString(struct CTypeWriter * tw, const char * str);
-extern int tw_parse(struct CTypeWriter * tw);
-extern void tw_render(struct CTypeWriter * tw, unsigned int frame, char * str, int length);
-extern void tw_print(struct CTypeWriter * tw);
-extern int tw_isEnd(struct CTypeWriter * tw);
+extern TypeWriter * tw_init();
+extern void tw_delete(TypeWriter * tw);
+extern void tw_setFrameRate(TypeWriter * tw, unsigned int fr);
+extern unsigned int tw_getFrameRate(TypeWriter * tw);
+extern void tw_setRawString(TypeWriter * tw, const char * str);
+extern int tw_parse(TypeWriter * tw);
+extern void tw_render(TypeWriter * tw, unsigned int frame, char * str, int length);
+extern int tw_isEnd(TypeWriter * tw);
+extern void tw_clear(TypeWriter * tw);
+extern void tw_debug(TypeWriter * tw);
+
 #endif
 #ifdef __cplusplus
 }

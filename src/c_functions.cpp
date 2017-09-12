@@ -27,51 +27,54 @@
 
 #include <cstring>
 
-CTypeWriter * tw_init()
+TypeWriter * tw_init()
 {
-    CTypeWriter *ctw = new CTypeWriter;
-    ctw->tw = new TypeWriter;
-    return ctw;
+    TypeWriter *tw = new TypeWriter;
+    return tw;
 }
 
-void tw_delete(CTypeWriter * tw)
+void tw_delete(TypeWriter * tw)
 {
-    delete (TypeWriter*)tw->tw;
-    delete tw;
+    delete (TypeWriter *) tw;
     tw = 0;
 }
 
-void tw_setFrameRate(CTypeWriter * tw, unsigned int fr)
+void tw_setFrameRate(TypeWriter * tw, unsigned int fr)
 {
-    ((TypeWriter*)tw->tw)->setFrameRate(fr);
+    tw->setFrameRate(fr);
 }
 
-unsigned int tw_getFrameRate(CTypeWriter * tw)
+unsigned int tw_getFrameRate(TypeWriter * tw)
 {
-    return ((TypeWriter*)tw->tw)->getFrameRate();
+    return tw->getFrameRate();
 }
 
-void tw_setRawString(CTypeWriter * tw, const char * str)
+void tw_setRawString(TypeWriter * tw, const char * str)
 {
-    ((TypeWriter*)tw->tw)->setRawString(str);
+    tw->setRawString(str);
 }
 
-int tw_parse(CTypeWriter * tw)
+int tw_parse(TypeWriter * tw)
 {
-    return ((TypeWriter*)tw->tw)->parse();
+    return tw->parse();
 }
 
-void tw_render(CTypeWriter * tw, unsigned int frame, char * str, int length)
+void tw_render(TypeWriter * tw, unsigned int frame, char * str, int length)
 {
-    std::strncpy(str, ((TypeWriter*)tw->tw)->render(frame).c_str(), length);
+    std::strncpy(str, tw->render(frame).c_str(), length);
 }
 
-void tw_print(CTypeWriter * tw)
+int tw_isEnd(TypeWriter * tw)
 {
-    ((TypeWriter*)tw->tw)->print();
+    return tw->isEnd();
 }
 
-int tw_isEnd(CTypeWriter * tw)
+void tw_clear(TypeWriter * tw)
 {
-    return ((TypeWriter*)tw->tw)->isEnd();
+    tw->clear();
+}
+
+void tw_debug(TypeWriter * tw)
+{
+    tw->debug();
 }
