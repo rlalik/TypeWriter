@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.0.0)
 project(typewriter C CXX)
 include(CheckCXXCompilerFlag)
 
+# for python bindings
+OPTION (WITH_PYTHON "Build Python Bindings." OFF)
+if (WITH_PYTHON)
+    find_package(PythonLibs REQUIRED)
+endif()
+
 #Let's build shared libs (*.so)
 OPTION (BUILD_SHARED_LIBS "Build shared libraries." ON)
 
@@ -62,3 +68,24 @@ include_directories("src")
 add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(examples)
+
+# for python bindings
+if (PYTHONLIBS_FOUND)
+    set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
+    set(SETUP_PY    "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+    set(DEPS        "${CMAKE_CURRENT_SOURCE_DIR}/src/pytypewriter.pyx")
+    set(OUT         "${CMAKE_CURRENT_BINARY_DIR}/src/pytypewriter.cpp")
+
+    configure_file(${SETUP_PY_IN} ${SETUP_PY})
+
+    add_custom_command(
+        OUTPUT ${OUT}
+        COMMAND python ${SETUP_PY} build_ext
+        DEPENDS ${DEPS}
+    )
+
+    add_custom_target(target ALL DEPENDS ${OUT})
+
+    message(INFO DESTDIR=$ENV{DESTDIR})
+    install(CODE "execute_process(COMMAND python ${SETUP_PY} install --prefix=\$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX})")
+endif()

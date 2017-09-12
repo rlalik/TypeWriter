@@ -1,0 +1,20 @@
+from distutils.core import setup, Extension
+from Cython.Build import cythonize
+
+module = Extension(
+    "pytypewriter",
+    sources=[
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/pytypewriter.pyx",
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/typewriter.cpp",
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/c_functions.cpp",
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/parsing_functions.cpp"
+    ],
+    language="c++",              # generate C++ code
+    extra_compile_args=["-std=c++11"]
+)
+
+setup(
+    name='pyTypeWriter',
+    package_dir={'' : '${CMAKE_CURRENT_SOURCE_DIR}' },
+    ext_modules=cythonize(module, build_dir="${CMAKE_CURRENT_BINARY_DIR}")
+)
