@@ -99,7 +99,7 @@ int main(int argc, char ** argv)
         return 1;
 
     uint fr = tw.getFrameRate();
-    ulong step = 1000000 / fr;
+    unsigned long step = 1000000 / fr;
 
     uint i = 0;
     std::string last_str;
