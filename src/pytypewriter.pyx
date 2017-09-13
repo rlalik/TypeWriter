@@ -8,11 +8,12 @@ cdef extern from "typewriter.h":
         void setFrameRate(int)
         int getFrameRate()
 
-        void setRawString(string);
-        string getRawString()
+        void setPattern(string)
+        string getPattern()
 
-        bool parse();
-        string render(int);
+        int parse()
+        void printParseResult()
+        string render(int)
 
         int count()
         bool isEnd()
@@ -30,13 +31,16 @@ cdef class PyTypeWriter:
     def getFrameRate(self):
         return self.c_tw.getFrameRate()
 
-    def setRawString(self, str):
-        self.c_tw.setRawString(str)
-    def getRawString(self):
-        return self.c_tw.getRawString()
+    def setPattern(self, str):
+        self.c_tw.setPattern(str)
+    def getPattern(self):
+        return self.c_tw.getPattern()
 
     def parse(self):
         return self.c_tw.parse()
+    def printParseResult(self):
+        self.c_tw.printParseResult()
+
     def render(self, frame):
         return self.c_tw.render(frame)
 

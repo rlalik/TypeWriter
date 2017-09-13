@@ -93,7 +93,7 @@ int main(int argc, char ** argv)
 
     TypeWriter tw;
     tw.setFrameRate(framerate);
-    tw.setRawString(input_string);
+    tw.setPattern(input_string);
 
     if (!tw.parse())
         return 1;

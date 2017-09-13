@@ -49,9 +49,14 @@ unsigned int tw_getFrameRate(TypeWriter * tw)
     return tw->getFrameRate();
 }
 
-void tw_setRawString(TypeWriter * tw, const char * str)
+void tw_setPattern(TypeWriter * tw, const char * str)
 {
-    tw->setRawString(str);
+    tw->setPattern(str);
+}
+
+const char * tw_getPattern(TypeWriter * tw)
+{
+    return tw->getPattern().c_str();
 }
 
 int tw_parse(TypeWriter * tw)
@@ -59,9 +64,14 @@ int tw_parse(TypeWriter * tw)
     return tw->parse();
 }
 
-void tw_render(TypeWriter * tw, unsigned int frame, char * str, int length)
+void tw_printParseResult(TypeWriter * tw)
 {
-    std::strncpy(str, tw->render(frame).c_str(), length);
+    return tw->printParseResult();
+}
+
+const char * tw_render(TypeWriter * tw, unsigned int frame)
+{
+    return tw->render(frame).c_str();
 }
 
 unsigned int tw_count(TypeWriter * tw)

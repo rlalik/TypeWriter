@@ -53,11 +53,13 @@ public:
     void setFrameRate(uint fr) { frame_rate = fr; }
     uint getFrameRate() const { return frame_rate; }
 
-    void setRawString(const std::string & str);
-    std::string getRawString() const { return raw_string; }
+    void setPattern(const std::string & str);
+    const std::string & getPattern() const { return raw_string; }
 
-    bool parse();
-    std::string render(uint frame);
+    int parse();
+    void printParseResult();
+
+    const std::string & render(uint frame);
 
     uint count() const;
     bool isEnd() const { return last_used_idx == (int)frames.size()-1; }
@@ -83,6 +85,7 @@ private:
 
 private:
     size_t frame_rate;
+    int parsing_err;
 
     std::string raw_string;
 
@@ -105,9 +108,11 @@ extern TypeWriter * tw_init();
 extern void tw_delete(TypeWriter * tw);
 extern void tw_setFrameRate(TypeWriter * tw, unsigned int fr);
 extern unsigned int tw_getFrameRate(TypeWriter * tw);
-extern void tw_setRawString(TypeWriter * tw, const char * str);
+extern void tw_setPattern(TypeWriter * tw, const char * str);
+extern const char * tw_getPattern(TypeWriter * tw);
 extern int tw_parse(TypeWriter * tw);
-extern void tw_render(TypeWriter * tw, unsigned int frame, char * str, int length);
+extern void tw_printParseResult(TypeWriter * tw);
+extern const char * tw_render(TypeWriter * tw, unsigned int frame);
 extern unsigned int tw_count(TypeWriter * tw);
 extern unsigned int tw_isEnd(TypeWriter * tw);
 extern void tw_clear(TypeWriter * tw);
