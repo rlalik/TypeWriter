@@ -59,6 +59,7 @@ public:
     bool parse();
     std::string render(uint frame);
 
+    uint count() const;
     bool isEnd() const { return last_used_idx == (int)frames.size()-1; }
 
     void clear();
@@ -107,7 +108,8 @@ extern unsigned int tw_getFrameRate(TypeWriter * tw);
 extern void tw_setRawString(TypeWriter * tw, const char * str);
 extern int tw_parse(TypeWriter * tw);
 extern void tw_render(TypeWriter * tw, unsigned int frame, char * str, int length);
-extern int tw_isEnd(TypeWriter * tw);
+extern unsigned int tw_count(TypeWriter * tw);
+extern unsigned int tw_isEnd(TypeWriter * tw);
 extern void tw_clear(TypeWriter * tw);
 extern void tw_debug(TypeWriter * tw);
 

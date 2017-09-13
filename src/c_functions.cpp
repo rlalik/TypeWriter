@@ -64,7 +64,12 @@ void tw_render(TypeWriter * tw, unsigned int frame, char * str, int length)
     std::strncpy(str, tw->render(frame).c_str(), length);
 }
 
-int tw_isEnd(TypeWriter * tw)
+unsigned int tw_count(TypeWriter * tw)
+{
+    return tw->count();
+}
+
+unsigned int tw_isEnd(TypeWriter * tw)
 {
     return tw->isEnd();
 }

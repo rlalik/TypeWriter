@@ -14,6 +14,7 @@ cdef extern from "typewriter.h":
         bool parse();
         string render(int);
 
+        int count()
         bool isEnd()
 
         void clear()
@@ -35,12 +36,15 @@ cdef class PyTypeWriter:
         return self.c_tw.getRawString()
 
     def parse(self):
-        self.c_tw.parse()
-    def renbder(self, frame):
-        self.c_tw.render(frame)
+        return self.c_tw.parse()
+    def render(self, frame):
+        return self.c_tw.render(frame)
 
+    def count(self):
+        return self.c_tw.count()
     def isEnd(self):
         return self.c_tw.isEnd()
+
     def clear(self):
         self.c_tw.clear()
     def debug(self):

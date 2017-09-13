@@ -64,6 +64,12 @@ bool TypeWriter::parse()
     return true;
 }
 
+uint TypeWriter::count() const
+{
+    return frames.back().frame;
+}
+
+
 uint TypeWriter::getOrInsertFrame(uint frame)
 {
     // create new or reuse old frame

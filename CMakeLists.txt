@@ -66,8 +66,12 @@ endif()
 include_directories("src")
 
 add_subdirectory(src)
-add_subdirectory(tests)
 add_subdirectory(examples)
+
+OPTION (WITH_TESTS "Build Tests." ON)
+if (WITH_TESTS)
+add_subdirectory(tests)
+endif()
 
 # for python bindings
 if (PYTHONLIBS_FOUND)
