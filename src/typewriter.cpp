@@ -129,7 +129,7 @@ const std::string & TypeWriter::render(uint frame)
         return null_string;
 
     if (last_used_idx == -1)
-        ++last_used_idx;
+        last_used_idx = 0;
 
     // start with current frame
     Frame f = frames[last_used_idx];
@@ -171,7 +171,7 @@ void TypeWriter::addBypass(uint idx)
 
     while (true)
     {
-        if (frames[pidx].bypass >= 0)
+        if (frames[pidx].bypass != -2)
         {
             pidx = frames[pidx].bypass;
         }
@@ -181,7 +181,6 @@ void TypeWriter::addBypass(uint idx)
             break;
         }
     }
-
     frames[idx].bypass = pidx;
 
     if (frames[idx].bypass >= 0)
