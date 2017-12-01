@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(typewriter C CXX)
 include(CheckCXXCompilerFlag)
+include(GNUInstallDirs)
 
 # for python bindings
 OPTION (WITH_PYTHON "Build Python Bindings." OFF)
@@ -68,7 +69,7 @@ include_directories("src")
 add_subdirectory(src)
 add_subdirectory(examples)
 
-OPTION (WITH_TESTS "Build Tests." ON)
+OPTION (WITH_TESTS "Build Tests." OFF)
 if (WITH_TESTS)
 add_subdirectory(tests)
 endif()

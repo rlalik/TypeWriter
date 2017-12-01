@@ -2,8 +2,8 @@ from libcpp cimport bool
 from libcpp.string cimport string
 
 cdef extern from "typewriter.h":
-    cdef cppclass TypeWriter:
-        TypeWriter() except +
+    cdef cppclass _TypeWriter "TypeWriter":
+        _TypeWriter() except +
 
         void setFrameRate(int)
         int getFrameRate()
@@ -21,10 +21,10 @@ cdef extern from "typewriter.h":
         void clear()
         void debug()
 
-cdef class PyTypeWriter:
-    cdef TypeWriter c_tw      # hold a C++ instance which we're wrapping
+cdef class TypeWriter:
+    cdef _TypeWriter c_tw      # hold a C++ instance which we're wrapping
     def __cinit__(self,):
-        self.c_tw = TypeWriter()
+        self.c_tw = _TypeWriter()
 
     def setFrameRate(self, fr):
         self.c_tw.setFrameRate(fr)
